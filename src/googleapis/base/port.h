@@ -974,11 +974,24 @@ typedef SSIZE_T ssize_t;
 // overflow.
 #define vsnprintf base_port_MSVC_vsnprintf
 BASE_PORT_MSVC_DLL_MACRO
-    int base_port_MSVC_vsnprintf(char *str, size_t size,
-                                 const char *format, va_list ap);
+inline int base_port_MSVC_vsnprintf(char *str, size_t size,
+const char *format, va_list ap) {
+  // These call the windows _vsnprintf, but always NUL-terminate.
+  if (size == 0)        // not even room for a \0?
+    return -1;          // not what C99 says to do, but what windows does
+  str[size - 1] = '\0';
+  return _vsnprintf(str, size - 1, format, ap);
+}
+
 #define snprintf base_port_MSVC_snprintf
 BASE_PORT_MSVC_DLL_MACRO
-    int base_port_MSVC_snprintf(char *str, size_t size, const char *fmt, ...);
+inline int base_port_MSVC_snprintf(char *str, size_t size, const char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  const int r = base_port_MSVC_vsnprintf(str, size, fmt, ap);
+  va_end(ap);
+  return r;
+}
 
 // You say tomato, I say _tomato
 #define strcasecmp _stricmp
