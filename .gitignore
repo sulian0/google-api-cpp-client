@@ -14,3 +14,4 @@ lib
 export
 local.cmake
 build
+service_apis/youtube
