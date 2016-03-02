@@ -27,7 +27,7 @@ option(gtest_force_shared_crt "Force Gmock to use standard compiler flags" ON)
 
 option(googleapis_build_tests "Build all of googleapis' own tests." OFF)
 option(googleapis_build_samples "Build googleapis sample programs." OFF)
-option(googleapis_build_service_apis "Build specialized service APIs." OFF)
+option(googleapis_build_service_apis "Build specialized service APIs." ON)
 option(googleapis_build_mongoose "Build mongoose webserver APIs." OFF)
 
 if(NOT DEFINED GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR)
