@@ -672,6 +672,7 @@ string OAuth2AuthorizationFlow::GenerateAuthorizationCodeRequestUrlWithOptions(
                 "?client_id=", EscapeForUrl(client_spec_.client_id()),
                 "&redirect_uri=", EscapeForUrl(redirect),
                 "&scope=", EscapeForUrl(scopes),
+                "&login_hint=", EscapeForUrl(options.email),
                 "&response_type=code");
 }
 
