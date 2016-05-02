@@ -30,6 +30,7 @@ using std::string;
 #include "openssl/evp.h"
 #include "openssl/err.h"
 #include "googleapis/strings/strcat.h"
+#include "googleapis/strings/escaping.h"
 
 namespace googleapis {
 
@@ -86,14 +87,35 @@ class OpenSslReader : public CodecReader {
   virtual googleapis::util::Status EncodeChunk(
       const StringPiece& chunk, bool is_final_chunk,
       char* to, int64* to_length) {
-    return EncodeDecodeChunk(chunk, is_final_chunk, to, to_length);
+    int64 tmp_length = *to_length;
+    char* tmp = new char[tmp_length];
+    googleapis::util::Status status = EncodeDecodeChunk(chunk, is_final_chunk, tmp, &tmp_length);
+
+    const unsigned char* source = reinterpret_cast<const unsigned char*>(tmp);
+    *to_length = strings::Base64Escape(source, tmp_length, to, *to_length);
+
+    delete[] tmp;
+    return status;
   }
 
 
   virtual googleapis::util::Status DecodeChunk(
       const StringPiece& chunk, bool is_final_chunk,
       char* to, int64* to_length) {
-    return EncodeDecodeChunk(chunk, is_final_chunk, to, to_length);
+    int64 tmp_length = *to_length;
+    char* tmp = new char[tmp_length];
+    string decoded;
+    bool success = strings::Base64Unescape(chunk, &decoded);
+    if (success && decoded.size() <= tmp_length) {
+      memcpy(tmp, decoded.data(), decoded.size());
+      tmp_length = decoded.size();
+    } else {
+      tmp_length = -1;
+    }
+
+    StringPiece tmpChunk(tmp, tmp_length);
+    googleapis::util::Status status = EncodeDecodeChunk(tmpChunk, is_final_chunk, to, to_length);
+    return status;
   }
 
  private:
