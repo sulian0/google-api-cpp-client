@@ -631,7 +631,6 @@ util::Status OAuth2AuthorizationFlow::RefreshCredentialWithOptions(
   // credential store if successful.
   if (refresh_status.ok()
       && !options.email.empty()) {
-    credential->set_email(options.email, false);
     if (credential_store_.get()) {
       // TODO(user): 20130301
       // if we havent verified the email yet, then attempt to do so first.
